@@ -6,7 +6,7 @@ function Landing() {
   const items = [
     {
       label: "About",
-      bgColor: "#0D0716",
+      bgColor: "#7B8070",
       textColor: "#fff",
       links: [
         { label: "Company", ariaLabel: "About Company" },
@@ -15,7 +15,7 @@ function Landing() {
     },
     {
       label: "Projects",
-      bgColor: "#170D27",
+      bgColor: "#484B42",
       textColor: "#fff",
       links: [
         { label: "Featured", ariaLabel: "Featured Projects" },
@@ -24,7 +24,7 @@ function Landing() {
     },
     {
       label: "Contact",
-      bgColor: "#271E37",
+      bgColor: "#3F4F3B",
       textColor: "#fff",
       links: [
         { label: "Email", ariaLabel: "Email us" },
@@ -40,8 +40,8 @@ function Landing() {
         logoAlt="Company Logo"
         items={items}
         baseColor="#fff"
-        menuColor="#000"
-        buttonBgColor="#111"
+        menuColor="#3F4F3B"
+        buttonBgColor="#3F4F3B"
         buttonTextColor="#fff"
         ease="power3.out"
         theme="light"
