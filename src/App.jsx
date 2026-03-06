@@ -1,6 +1,15 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import Landing from "./Pages/Landing"
+
+
 function App(){
   return(
-    <h1 className="text-xl font-bold">Test</h1>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+      </Routes>
+    </Router>
   )
 }
 export default App
