@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from "../components/NavBar";
 import logo from "../assets/logo.png";
+import Login from "../PagesLogin.jsx";
 
 function Landing() {
   const items = [

@@ -1,6 +1,8 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { GoArrowUpRight } from 'react-icons/go';
+import { useNavigate, useLocation } from "react-router-dom";
+import Login from "../Pages/Login";
 
 const Navbar = ({
   logo,
@@ -18,9 +20,11 @@ const Navbar = ({
   const navRef = useRef(null);
   const cardsRef = useRef([]);
   const tlRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const calculateHeight = () => {
-    const navEl = navRef.current;
+    const navEl = navRef.current;   
     if (!navEl) return 260;
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
@@ -53,6 +57,23 @@ const Navbar = ({
     }
     return 260;
   };
+
+    const handleNavClick = (item) => {
+    if (item.href) {
+      if (item.href.startsWith('/')) {
+        // Route to a different page
+        navigate(item.href);
+      } else if (item.href.startsWith('#')) {
+        // Scroll to section on same page
+        const sectionId = item.href.substring(1);
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+  };
+
 
   const createTimeline = () => {
     const navEl = navRef.current;
@@ -169,8 +190,9 @@ const Navbar = ({
             type="button"
             className="card-nav-cta-button hidden md:inline-flex border-0 rounded-[calc(0.75rem-0.2rem)] px-4 items-center h-full font-medium cursor-pointer transition-colors duration-300"
             style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
+            onClick={() => navigate("/Login")}
           >
-            Get Started
+            Get Started   
           </button>
         </div>
 
@@ -190,6 +212,7 @@ const Navbar = ({
               <div className="nav-card-label font-normal tracking-[-0.5px] text-[18px] md:text-[22px]">
                 {item.label}
               </div>
+
               <div className="nav-card-links mt-auto flex flex-col gap-[2px]">
                 {item.links?.map((lnk, i) => (
                   <a
