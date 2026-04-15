@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { signInWithGoogle, signInWithEmail } from "../config/auth";
+import { getUserRole } from "../config/roleManagement";
 import heroBg from "../assets/Login_Hero.jpg";
 import formBg from "../assets/Login_BG.jpg";
 import logo from "../assets/logo.png";
@@ -16,6 +17,7 @@ const colors = {
   primaryHover: "#2e3a2b",
   secondary: "#7B8070",
   accent: "#484B42",
+  accent2: "#A8C5A0",
 };
 
 function Login() {
@@ -37,8 +39,14 @@ function Login() {
     setError("");
     setLoading(true);
     try {
-      await signInWithEmail(email, password);
-      navigate("/CustomerDashboard");
+      const userCredential = await signInWithEmail(email, password);
+      const userRole = await getUserRole(userCredential.user.uid);
+      
+      if (userRole === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/CustomerDashboard");
+      }
     } catch (err) {
       setError(friendlyError(err.code, err.message));
     } finally {
@@ -50,8 +58,14 @@ function Login() {
     setError("");
     setGoogleLoading(true);
     try {
-      await signInWithGoogle();
-      navigate("/CustomerDashboard");
+      const userCredential = await signInWithGoogle();
+      const userRole = await getUserRole(userCredential.user.uid);
+      
+      if (userRole === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/CustomerDashboard");
+      }
     } catch (err) {
       console.error("Google sign-in error:", err.code, err.message);
       if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
@@ -110,7 +124,7 @@ function Login() {
 
         <div className="relative z-10 p-10 pb-12">
           <p
-            style={{ fontFamily: fonts.montserrat, color: "#A8C5A0" }}
+            style={{ fontFamily: fonts.montserrat, color: colors.accent2 }}
             className="text-sm font-semibold uppercase tracking-widest mb-3"
           >
             Good food. Good vibes.
@@ -142,7 +156,7 @@ function Login() {
           backgroundPosition: "center",
         }}
       >
-        <div className="w-full max-w-[400px]">
+        <div className="w-full max-w-[420px]">
           {/* Mobile brand mark */}
           <div className="flex lg:hidden items-center gap-2.5 justify-center mb-8">
             <button
@@ -171,7 +185,7 @@ function Login() {
           {/* Heading */}
           <h1
             style={{ fontFamily: fonts.montserrat, color: colors.primary }}
-            className="text-3xl font-extrabold mb-1"
+            className="text-3xl font-extrabold mb-2"
           >
             Welcome back
           </h1>
@@ -185,10 +199,10 @@ function Login() {
           {/* Error banner */}
           {error && (
             <div
-              className="mb-5 px-4 py-3 rounded-xl text-sm"
+              className="mb-5 px-4 py-3 rounded-xl text-sm backdrop-blur-sm"
               style={{
-                backgroundColor: "rgba(220,53,69,0.1)",
-                border: "1.5px solid rgba(220,53,69,0.3)",
+                backgroundColor: "rgba(220,53,69,0.15)",
+                border: "1.5px solid rgba(220,53,69,0.4)",
                 color: "#b91c1c",
                 fontFamily: fonts.poppins,
               }}
@@ -229,15 +243,15 @@ function Login() {
                   placeholder="you@example.com"
                   style={{
                     fontFamily: fonts.poppins,
-                    backgroundColor: "rgba(255,255,255,0.72)",
-                    border: "1.5px solid rgba(63,79,59,0.2)",
+                    backgroundColor: "rgba(255,255,255,0.85)",
+                    border: `1.5px solid rgba(63,79,59,0.25)`,
                     color: colors.primary,
                     fontSize: "0.9rem",
                     outline: "none",
-                    transition: "border-color 0.2s, box-shadow 0.2s",
+                    transition: "border-color 0.2s, box-shadow 0.2s, background-color 0.2s",
                   }}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl placeholder:text-gray-400
-                    focus:border-[#3F4F3B] focus:shadow-[0_0_0_3px_rgba(63,79,59,0.12)]"
+                  className="w-full pl-10 pr-4 py-3.5 rounded-xl placeholder:text-gray-400
+                    focus:border-[#3F4F3B] focus:shadow-[0_0_0_3px_rgba(63,79,59,0.12)] focus:bg-white"
                 />
               </div>
             </div>
@@ -272,20 +286,20 @@ function Login() {
                   placeholder="••••••••"
                   style={{
                     fontFamily: fonts.poppins,
-                    backgroundColor: "rgba(255,255,255,0.72)",
-                    border: "1.5px solid rgba(63,79,59,0.2)",
+                    backgroundColor: "rgba(255,255,255,0.85)",
+                    border: `1.5px solid rgba(63,79,59,0.25)`,
                     color: colors.primary,
                     fontSize: "0.9rem",
                     outline: "none",
-                    transition: "border-color 0.2s, box-shadow 0.2s",
+                    transition: "border-color 0.2s, box-shadow 0.2s, background-color 0.2s",
                   }}
-                  className="w-full pl-10 pr-11 py-3 rounded-xl placeholder:text-gray-400
-                    focus:border-[#3F4F3B] focus:shadow-[0_0_0_3px_rgba(63,79,59,0.12)]"
+                  className="w-full pl-10 pr-11 py-3.5 rounded-xl placeholder:text-gray-400
+                    focus:border-[#3F4F3B] focus:shadow-[0_0_0_3px_rgba(63,79,59,0.12)] focus:bg-white"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer hover:opacity-70 transition-opacity"
                   style={{ color: colors.secondary, lineHeight: 0 }}
                   tabIndex={-1}
                   aria-label={showPassword ? "Hide password" : "Show password"}
@@ -299,14 +313,14 @@ function Login() {
             <div className="flex items-center justify-between mt-1">
               <label
                 style={{ fontFamily: fonts.poppins, color: colors.secondary }}
-                className="flex items-center gap-2 text-sm cursor-pointer select-none"
+                className="flex items-center gap-2 text-sm cursor-pointer select-none hover:text-[#3F4F3B] transition-colors"
               >
                 <input
                   type="checkbox"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
                   style={{ accentColor: colors.primary }}
-                  className="w-4 h-4 rounded"
+                  className="w-4 h-4 rounded cursor-pointer"
                 />
                 Remember me
               </label>
@@ -318,7 +332,7 @@ function Login() {
                   fontSize: "0.85rem",
                   fontWeight: 500,
                 }}
-                className="hover:underline cursor-pointer"
+                className="hover:underline cursor-pointer transition-all"
               >
                 Forgot password?
               </a>
@@ -337,23 +351,23 @@ function Login() {
                 letterSpacing: "0.05em",
                 transform: signInHover && !loading ? "translateY(-2px)" : "translateY(0)",
                 boxShadow: signInHover && !loading
-                  ? "0 8px 20px rgba(63,79,59,0.35)"
+                  ? "0 8px 24px rgba(63,79,59,0.35)"
                   : "0 2px 8px rgba(63,79,59,0.15)",
-                opacity: loading ? 0.7 : 1,
+                opacity: loading ? 0.8 : 1,
                 transition: "background-color 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.2s",
               }}
-              className="w-full mt-2 py-3.5 rounded-xl text-white font-bold uppercase flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed"
+              className="w-full mt-2 py-3.5 rounded-xl text-white font-bold uppercase flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed transition-all"
             >
               {loading && <Spinner />}
               {loading ? "Signing in…" : "Sign In"}
             </button>
 
             {/* Divider */}
-            <div className="flex items-center gap-3 my-1">
+            <div className="flex items-center gap-3 my-2">
               <hr style={{ borderColor: "rgba(63,79,59,0.18)" }} className="flex-1" />
               <span
                 style={{ color: colors.secondary, fontFamily: fonts.poppins }}
-                className="text-xs"
+                className="text-xs font-medium"
               >
                 or
               </span>
@@ -368,19 +382,19 @@ function Login() {
               onMouseEnter={() => setGoogleHover(true)}
               onMouseLeave={() => setGoogleHover(false)}
               style={{
-                backgroundColor: googleHover && !googleLoading ? "#ffffff" : "rgba(255,255,255,0.75)",
-                border: `1.5px solid ${googleHover ? "rgba(63,79,59,0.45)" : "rgba(63,79,59,0.22)"}`,
+                backgroundColor: googleHover && !googleLoading ? "#ffffff" : "rgba(255,255,255,0.9)",
+                border: `1.5px solid ${googleHover ? "rgba(63,79,59,0.3)" : "rgba(63,79,59,0.2)"}`,
                 fontFamily: fonts.poppins,
                 color: colors.accent,
                 fontSize: "0.88rem",
                 transform: googleHover && !googleLoading ? "translateY(-2px)" : "translateY(0)",
                 boxShadow: googleHover && !googleLoading
                   ? "0 8px 20px rgba(63,79,59,0.15)"
-                  : "0 2px 6px rgba(63,79,59,0.06)",
-                opacity: googleLoading ? 0.7 : 1,
+                  : "0 2px 6px rgba(63,79,59,0.08)",
+                opacity: googleLoading ? 0.8 : 1,
                 transition: "background-color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.2s",
               }}
-              className="w-full py-3 rounded-xl font-medium flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed"
+              className="w-full py-3.5 rounded-xl font-medium flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed transition-all"
             >
               {googleLoading ? (
                 <Spinner color={colors.secondary} />
@@ -394,13 +408,13 @@ function Login() {
           {/* Sign up link */}
           <p
             style={{ fontFamily: fonts.poppins, color: colors.secondary }}
-            className="text-sm text-center mt-7"
+            className="text-sm text-center mt-8"
           >
             Don't have an account?{" "}
             <a
               href="#"
               style={{ color: colors.primary, fontWeight: 600 }}
-              className="hover:underline cursor-pointer"
+              className="hover:underline cursor-pointer transition-all"
             >
               Create one
             </a>

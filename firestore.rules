@@ -1,0 +1,120 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isUser() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'user';
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Users collection - user profiles and role management
+    match /users/{userId} {
+      // Allow users to read their own profile
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      // Allow users to update their own profile (except role)
+      allow write: if isAuthenticated() && isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']);
+      
+      // Allow admins to read and manage all user profiles
+      allow read, write: if isAdmin();
+      
+      // Allow creation of new user profiles during sign-up
+      allow create: if isAuthenticated() && isOwner(userId) && request.resource.data.role == 'user';
+    }
+    
+    // Menu Items collection - manage food items
+    match /menuItems/{document=**} {
+      // Allow authenticated users to read menu items
+      allow read: if isAuthenticated();
+      
+      // Allow only admins to create, update, and delete menu items
+      allow write: if isAdmin();
+    }
+    
+    // Customers collection - manage customer data
+    match /customers/{customerId} {
+      // Allow users to read their own customer data
+      allow read: if isAuthenticated() && isOwner(customerId);
+      
+      // Allow admins to read and manage all customer data
+      allow read, write: if isAdmin();
+      
+      // Allow users to create their customer profile
+      allow create: if isAuthenticated() && isOwner(customerId);
+      
+      // Allow users to update their own customer profile
+      allow update: if isAuthenticated() && isOwner(customerId);
+    }
+    
+    // Promotions collection - manage promotional content
+    match /promotions/{promotionId} {
+      // Allow authenticated users to read promotions
+      allow read: if isAuthenticated();
+      
+      // Allow only admins to create, update, and delete promotions
+      allow write: if isAdmin();
+    }
+    
+    // Orders collection - manage customer orders
+    match /orders/{orderId} {
+      // Allow users to read their own orders
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Allow users to create their own orders
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      
+      // Allow users to update their own orders (only if not completed/shipped)
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid &&
+                       resource.data.status in ['pending', 'processing'];
+      
+      // Allow admins to read and manage all orders
+      allow read, write: if isAdmin();
+    }
+    
+    // Favorites collection - manage user favorites
+    match /favorites/{favoriteId} {
+      // Allow users to read their own favorites
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Allow users to create their own favorites
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      
+      // Allow users to delete their own favorites
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Allow admins to read and manage all favorites
+      allow read, write: if isAdmin();
+    }
+    
+    // User Stats collection - manage user statistics
+    match /userStats/{userId} {
+      // Allow users to read their own stats
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      // Allow users to create/update their own stats
+      allow write: if isAuthenticated() && isOwner(userId);
+      
+      // Allow admins to read and manage all stats
+      allow read, write: if isAdmin();
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
